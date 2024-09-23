@@ -1,0 +1,19 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import queryBlogs from "@/utils/fetchDiscussion";
+import { uniqBy} from 'lodash-es';
+
+const discussions = await queryBlogs({body: true, categoryName: 'en'});
+const tags = [...uniqBy(discussions.map(d => d.labels.nodes).flat(),  'name')]
+---
+
+<BaseLayout title="标签索引页">
+    <h1>tag index</h1>
+    <div>
+      {
+        tags.map((tag) => (
+            <p><a style={{color: `#${tag.color}`}} href={`/tag/${tag.name}`}>{tag.name}</a></p>
+          ))
+      }
+    </div>
+</BaseLayout>

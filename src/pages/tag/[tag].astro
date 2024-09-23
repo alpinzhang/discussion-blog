@@ -1,0 +1,44 @@
+---
+import type { GetStaticPaths } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import queryBlogs from "@/utils/fetchDiscussion";
+
+export const getStaticPaths = (async () => {
+  // 所有的文章
+  const allPosts = await queryBlogs({body: true, categoryName: 'en'});
+  // 动态生成所有的标签
+  const uniqueTags = [...new Set(allPosts.map(p => p.labels.nodes).flat().map(n => n.name))]
+  // 动态生成标签的路由
+  return uniqueTags.map(tag => {
+    // 包含标签的所有文章
+    const filteredPosts = allPosts.filter(post => {
+      const postTags = post.labels.nodes.map(n => n.name)
+      return  postTags.includes(tag)
+    })
+    return {
+      params: {
+        tag: tag
+      },
+      props: {
+        posts: filteredPosts
+      }
+    }
+  })
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+
+---
+
+<BaseLayout title="标签索">
+  <p>包含「{tag}」标签的文章</p>
+  <ul>
+    {
+      posts.map(post => {
+        return <li><a href={`/blog/${post.number}`}>{post.title}</a></li>
+      })
+    }
+  </ul>
+    
+</BaseLayout>

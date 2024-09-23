@@ -1,0 +1,19 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import queryBlogs from "@/utils/fetchDiscussion";
+
+// 文章列表页，要展示所有文章的索引，故也要获取所有的文章
+const discussions = await queryBlogs({body: true, categoryName: 'en'});
+
+// console.log(11, discussions);
+---
+
+<BaseLayout title="文章列表">
+  <ul>
+    {
+      discussions.map(discussion => {
+        return <li><a href={`/blog/${discussion.number}`}>{discussion.title}</a></li>
+      })
+    }
+  </ul>
+</BaseLayout>

@@ -1,0 +1,37 @@
+---
+import type {GetStaticPaths} from 'astro';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import queryBlogs from "@/utils/fetchDiscussion";
+import { parseMarkdown} from '@/utils/parseMarkdown';
+import Prose from "@/components/Prose.astro";
+
+
+
+export const getStaticPaths = (async() => {
+  
+  //获取 discussions 所有数据
+  const discussions = await queryBlogs({body: true, categoryName: 'en'})
+    return discussions.map(discussion => {
+      return {
+        params: {
+          id: discussion.number
+        },
+        props: {
+          discussion
+        }
+      }
+    })
+}) satisfies GetStaticPaths;
+
+
+const { discussion } = Astro.props;
+const body = parseMarkdown(discussion.body!);
+
+---
+
+<BaseLayout title="文章详情页">
+  <h1>{discussion.title}</h1>
+  <Prose>
+    <div set:html={body}></div>
+  </Prose>
+</BaseLayout>
